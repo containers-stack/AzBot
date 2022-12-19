@@ -6,7 +6,7 @@ import subprocess
 import json
 from pydantic import BaseModel
 import openai
-
+from fastapi.middleware.cors import CORSMiddleware
 
 class Message(BaseModel):
     SubscriptionId: str
@@ -16,6 +16,15 @@ logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @lru_cache()
 def get_settings():
@@ -39,7 +48,7 @@ async def message(message: Message):
     try:
         response = openai.Completion.create(
             model="code-davinci-002",
-            prompt=f"az cli command to {message.Description} out format json",
+            prompt=f"az cli command to {message.Description} out format tsv",
             temperature=0,
             max_tokens=256,
             top_p=1,
@@ -58,12 +67,16 @@ async def message(message: Message):
 
         logger.info(f"RUN: {command}\n")
 
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, universal_newlines=True)
         response = ""
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+        if p.stderr != "":
+            for line in p.stderr:
+                response += line
+
         for line in p.stdout:
             response += line
         
-        return json.loads(response)
+        return response
 
     except Exception as ex:
         logger.exception(str(ex))

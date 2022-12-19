@@ -1,0 +1,11 @@
+<p-dropdown 
+    [disabled]="this.isLoading"
+    [options]="subs"
+    [(ngModel)]="this.selectedSub"
+    optionLabel="name"
+    optionValue="id"
+    [showTransitionOptions]="'300ms'" 
+    [hideTransitionOptions]="'300ms'"
+    [tooltip]="'Select Azure Subscription To Manage'"
+    (onChange)="switchSub($event)">
+</p-dropdown>

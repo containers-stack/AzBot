@@ -1,0 +1,23 @@
+<span style="width: 100%;" class="p-input-icon-right">
+    <input  type="text"
+            [disabled]="this.isLoading"
+            pInputText 
+            [(ngModel)]="this.message" 
+            style="width: 80%; border: 1px solid #1976d2;" 
+            placeholder="Try type `list all resource groups`">  
+    <p-button label="Run"
+              [disabled]="this.isLoading" 
+              style="padding: 10px;"
+              (onClick)="run()">
+    </p-button>
+</span> 
+
+<div style="margin-top: 30px;">
+    <table id="result" style="padding: 30px;">
+        <tr *ngFor="let line of this.lines;">
+            <td *ngFor="let cell of line.split('\t');">
+                {{cell}}
+            </td>
+        </tr>
+    </table>
+</div>
